@@ -1,6 +1,5 @@
 import { CodeFile } from "@/app/types/file";
 
-
 export function findFileById(
   files: CodeFile[],
   id: string
