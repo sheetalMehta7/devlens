@@ -5,12 +5,12 @@ import FileExplorer from "../explorer/FileExplorer";
 import CodeViewer from "../editor/CodeViewer";
 import ChatPanel from "../chat/ChatPanel";
 import { CodeFile } from "@/app/types/file";
-import { projectFiles } from "@/app/data/files";
+import { CodeSelection } from "@/app/types/ai";
 
 export default function ProjectWorkspace() {
   const [openFiles, setOpenFiles] = useState<CodeFile[]>([]);
-  const [activeFileId, setActiveFileId] =
-    useState<string | null>(null);
+  const [activeFileId, setActiveFileId] = useState<string | null>(null);
+  const [codeSelection, setCodeSelection] = useState<CodeSelection | null>(null);
 
   const activeFile =
     openFiles.find(
@@ -18,6 +18,8 @@ export default function ProjectWorkspace() {
     ) ?? null;
 
   const handleFileSelect = (file: CodeFile) => {
+    setCodeSelection(null);
+
     setOpenFiles((currentFiles) => {
       const alreadyOpen = currentFiles.some(
         (item) => item.id === file.id
@@ -31,6 +33,11 @@ export default function ProjectWorkspace() {
     });
 
     setActiveFileId(file.id);
+  };
+
+  const handleTabSelect = (fileId: string) => {
+    setCodeSelection(null);
+    setActiveFileId(fileId);
   };
 
   const handleTabClose = (fileId: string) => {
@@ -67,11 +74,12 @@ export default function ProjectWorkspace() {
         file={activeFile ?? undefined}
         openFiles={openFiles}
         activeFileId={activeFileId}
-        onTabSelect={setActiveFileId}
+        onTabSelect={handleTabSelect}
         onTabClose={handleTabClose}
+        onCodeSelect={setCodeSelection}
       />
 
-      <ChatPanel />
+      <ChatPanel selection={codeSelection} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { CodeFile } from "@/app/types/file";
 import CodeEditor from "./CodeEditor";
 import { getEditorLanguage } from "@/app/lib/editor";
+import { CodeSelection } from "@/app/types/ai";
 
 interface CodeViewerProps {
   file?: CodeFile;
@@ -11,6 +12,7 @@ interface CodeViewerProps {
   activeFileId: string | null;
   onTabSelect: (fileId: string) => void;
   onTabClose: (fileId: string) => void;
+  onCodeSelect: (selection: CodeSelection | null) => void;
 }
 
 export default function CodeViewer({
@@ -19,6 +21,7 @@ export default function CodeViewer({
   activeFileId,
   onTabSelect,
   onTabClose,
+  onCodeSelect,
 }: CodeViewerProps) {
   if (!file) {
     return (
@@ -87,9 +90,26 @@ export default function CodeViewer({
       <div className="min-h-0 flex-1">
         <CodeEditor
           value={file.content ?? ""}
-          language={getEditorLanguage(
-            file.language
-          )}
+          language={getEditorLanguage(file.language)}
+          onCodeSelect={(
+            code,
+            startLine,
+            endLine
+          ) => {
+            if (!code) {
+              onCodeSelect(null);
+              return;
+            }
+
+            onCodeSelect({
+              code,
+              fileId: file.id,
+              fileName: file.name,
+              filePath: file.path,
+              startLine,
+              endLine,
+            });
+          }}
         />
       </div>
     </section>
