@@ -1,17 +1,17 @@
-import { CodeSelection } from "../types/ai";
-import { AIModelId } from "./ai/models";
 
+import type { CodeSelection, ChatMessage } from "@/app/types/ai";
+import type { AIModelId } from "@/app/lib/ai/models";
 
 interface AskAIParams {
-  question: string;
+  messages: ChatMessage[];
   selection: CodeSelection | null;
-  model?: AIModelId;
+  model: AIModelId;
 }
 
 export async function askAI({
-  question,
+  messages,
   selection,
-  model = "openai/gpt-oss-120b",
+  model,
 }: AskAIParams): Promise<Response> {
   return fetch("/api/chat", {
     method: "POST",
@@ -19,19 +19,12 @@ export async function askAI({
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      question,
-
-      model,
-
-      file: selection
-        ? {
-            id: selection.fileId,
-            name: selection.fileName,
-            path: selection.filePath,
-          }
-        : null,
-
+      messages: messages.map(({ role, content }) => ({
+        role,
+        content,
+      })),
       selection,
+      model,
     }),
   });
 }
